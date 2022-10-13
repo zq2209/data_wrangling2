@@ -1,0 +1,100 @@
+---
+title: "data_wrangling2_1"
+author: "Zining Qi"
+date: "2022-10-13"
+output: github_document
+---
+
+```{r}
+library(tidyverse)
+library(rvest)
+library(httr)
+```
+
+# Extrac Tables
+```{r}
+url = "http://samhda.s3-us-gov-west-1.amazonaws.com/s3fs-public/field-uploads/2k15StateFiles/NSDUHsaeShortTermCHG2015.htm"
+drug_use_html = read_html(url)
+
+drug_use_html
+```
+
+```{r}
+drug_use_html %>%
+  html_table()
+```
+
+```{r}
+table_marj = 
+  drug_use_html %>% 
+  html_table() %>% 
+  first() 
+```
+
+```{r}
+table_marj = 
+  drug_use_html %>% 
+  html_table() %>% 
+  first() %>%
+  slice(-1)
+```
+
+# CSS Selection
+```{r}
+swm_html = 
+  read_html("https://www.imdb.com/list/ls070150896/")
+```
+
+```{r}
+title_vec = 
+  swm_html %>%
+  html_elements(".lister-item-header a") %>%
+  html_text()
+
+```
+
+```{r}
+runtime_vec = 
+  swm_html %>%
+  html_elements(".runtime") %>%
+  html_text()
+
+```
+
+```{r}
+gross_rev_vec = 
+  swm_html %>%
+  html_elements(".text-small:nth-child(7) span:nth-child(5)") %>%
+  html_text()
+```
+
+```{r}
+swm_df = 
+  tibble(
+    title = title_vec,
+    rev = gross_rev_vec,
+    runtime = runtime_vec)
+```
+
+# Using API
+```{r}
+nyc_water = 
+  GET("https://data.cityofnewyork.us/resource/ia2d-e54m.csv") %>% 
+  content("parsed")
+```
+
+```{r}
+brfss_smart2010 = 
+  GET("https://chronicdata.cdc.gov/resource/acme-vg9e.csv",
+      query = list("$limit" = 5000)) %>% 
+  content("parsed")
+```
+
+```{r}
+poke = 
+  GET("http://pokeapi.co/api/v2/pokemon/1") %>%
+  content()
+```
+
+
+
